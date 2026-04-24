@@ -1,0 +1,11 @@
+skill,aliases,category,domains
+python,"python;питон;py",language,"backend;data;ml;automation"
+fastapi,"fastapi;фастапи",framework,"backend;api"
+django,"django;джанго;джанга",framework,"backend;api"
+pandas,"pandas;пандас",library,"data;analytics"
+numpy,"numpy;нампай",library,"data;ml"
+sql,"sql;postgresql;sqlite;mysql",database,"backend;data"
+docker,"docker;докер",devops,"deployment;backend"
+telegram_bot,"telegram bot;телеграм бот;бот",framework,"automation;bots"
+machine_learning,"ml;machine learning;машинное обучение;машинка",field,"ml;data"
+cybersecurity,"cybersecurity;кибербезопасность;иб",field,"security"
