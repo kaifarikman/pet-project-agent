@@ -7,7 +7,7 @@ class SkillCatalogRepository:
         self.catalog_path = Path(catalog_path)
 
     def load_skills(self) -> list[Skill]:
-        df = pd.read_csv(self.catalog_path, sep=';', encoding='utf-8')
+        df = pd.read_csv(self.catalog_path, sep=',', encoding='utf-8')
         df = df.fillna("")
 
         return [
