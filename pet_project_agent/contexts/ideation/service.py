@@ -15,10 +15,12 @@ class IdeationService:
         if self.llm_client is None:
             return self._get_fallback_ideas(research_result, "LLM client is not configured.")
 
+        # Собираем список всех РЕАЛЬНО найденных URL для валидации
+        valid_urls = {repo.url for repo in research_result.github_repositories}
+
         prompt = self._build_prompt(research_result)
         try:
             raw_response = self.llm_client.generate(prompt, json_mode=True)
-            
             ideas_data = self._parse_flexible_json(raw_response)
             
             if not ideas_data:
@@ -26,7 +28,10 @@ class IdeationService:
 
             ideas = []
             for item in ideas_data[:3]:
-                # Берем данные с дефолтами, чтобы не падать на кривых полях
+                # Валидация ссылок: оставляем только те, что были в поиске
+                raw_refs = item.get("references") if isinstance(item.get("references"), list) else []
+                validated_refs = [url for url in raw_refs if url in valid_urls]
+
                 ideas.append(
                     ProjectIdea(
                         title=item.get("title") or item.get("name") or "Интересный проект",
@@ -34,7 +39,7 @@ class IdeationService:
                         stack=item.get("stack") if isinstance(item.get("stack"), list) else [],
                         mvp_features=item.get("mvp_features") if isinstance(item.get("mvp_features"), list) else [],
                         why_it_fits=item.get("why_it_fits") or "Подходит под ваш стек и интересы.",
-                        references=item.get("references") if isinstance(item.get("references"), list) else []
+                        references=validated_refs
                     )
                 )
             

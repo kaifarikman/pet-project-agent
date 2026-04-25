@@ -2,85 +2,62 @@ from pet_project_agent.domain.models import ProjectIdea, ResearchResult
 
 
 class ResponseRenderer:
-    SKILL_LABELS = {
-        "data_science": "data science",
-        "machine_learning": "machine learning",
-        "scikit_learn": "scikit-learn",
-        "telegram_bot": "telegram bot",
-    }
-
     def render(
         self,
         research_result: ResearchResult,
         ideas: list[ProjectIdea],
         include_debug: bool = False,
     ) -> str:
-        profile = research_result.user_profile
         executed_tools = {tool_call.tool_name for tool_call in research_result.tool_calls}
 
         lines: list[str] = []
-        lines.append("Топ-3 pet-проекта")
+        lines.append("# Топ-3 pet-проекта")
+        lines.append("")
+
         for index, idea in enumerate(ideas[:3], start=1):
-            lines.append(f"{index}. {idea.title}")
-            lines.append(idea.description)
-            lines.append(f"Почему подходит: {idea.why_it_fits}")
-            lines.append(f"Стек: {', '.join(idea.stack)}")
-            lines.append("MVP features:")
+            lines.append(f"## {index}. {idea.title}")
+            lines.append(f"{idea.description}")
+            lines.append("")
+            lines.append(f"**Почему подходит:** {idea.why_it_fits}")
+            lines.append("")
+            lines.append(f"**Стек:** {', '.join(idea.stack)}")
+            lines.append("")
+            lines.append("### MVP возможности")
             for feature in idea.mvp_features:
                 lines.append(f"- {feature}")
-            if idea.references:
-                lines.append("GitHub references:")
-                for reference in idea.references:
-                    lines.append(f"- {reference}")
-            else:
-                lines.append("GitHub references: конкретных references для этой идеи не найдено.")
+            
             lines.append("")
-
-        limitations: list[str] = []
-        if research_result.warnings:
-            limitations.extend(research_result.warnings)
-        if "github_search_tool" in executed_tools and not research_result.github_repositories:
-            limitations.append("Внешняя GitHub-выдача ограничена или пустая, поэтому часть идей построена по профилю пользователя.")
-        if not limitations and include_debug:
-            limitations.append("Выдача собрана из доступных tool results; итоговые идеи всё ещё стоит сузить под конкретный домен.")
+            lines.append("### GitHub референсы")
+            if idea.references:
+                for reference in idea.references:
+                    lines.append(f"- [{reference}]({reference})")
+            else:
+                lines.append("*Конкретных примеров не найдено, идея предложена на основе общих практик.*")
+            lines.append("")
+            lines.append("---")
+            lines.append("")
 
         if include_debug:
+            lines.append("# Отладочная информация")
             lines.append("")
-            lines.append("Какие инструменты и источники использованы")
+            lines.append("### Использованные инструменты")
             if not research_result.tool_calls:
-                lines.append("- Инструменты не были вызваны.")
+                lines.append("- Инструменты не вызывались.")
             else:
                 for tool_call in research_result.tool_calls:
-                    lines.append(f"- {tool_call.tool_name}: {tool_call.query}")
+                    lines.append(f"- **{tool_call.tool_name}**: `{tool_call.query}`")
 
+            lines.append("")
+            lines.append("### Результаты поиска")
             if "github_search_tool" in executed_tools:
-                if research_result.github_repositories:
-                    lines.append(
-                        f"- GitHub: найдено {len(research_result.github_repositories)} репозиториев."
-                    )
-                    if research_result.github_queries:
-                        lines.append("- GitHub queries:")
-                        for query in research_result.github_queries:
-                            lines.append(f"  {query}")
-                    if research_result.github_patterns:
-                        lines.append("- GitHub patterns:")
-                        for pattern in research_result.github_patterns:
-                            lines.append(f"  {pattern.name} (score={pattern.score})")
-                else:
-                    lines.append("- GitHub: релевантные репозитории не найдены.")
-
+                lines.append(f"- **GitHub**: найдено {len(research_result.github_repositories)} репозиториев.")
             if "hackernews_search_tool" in executed_tools:
-                if research_result.hackernews_items:
-                    lines.append(
-                        f"- Hacker News: найдено {len(research_result.hackernews_items)} обсуждений."
-                    )
-                else:
-                    lines.append("- Hacker News: релевантные обсуждения не найдены.")
+                lines.append(f"- **Hacker News**: найдено {len(research_result.hackernews_items)} обсуждений.")
 
-            if limitations:
+            if research_result.warnings:
                 lines.append("")
-                lines.append("Ограничения")
-                for limitation in limitations:
-                    lines.append(f"- {limitation}")
+                lines.append("### Предупреждения")
+                for warning in research_result.warnings:
+                    lines.append(f"- {warning}")
 
         return "\n".join(lines)
