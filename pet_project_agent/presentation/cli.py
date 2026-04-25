@@ -60,7 +60,7 @@ def _build_use_case() -> RecommendPetProjectsUseCase:
     )
     github_tool = GitHubSearchTool(
         client=GitHubClient(),
-        limit=10,
+        limit=settings.github_search_limit,
         min_stars=settings.github_min_stars,
         skill_catalog_repository=skill_catalog_repository,
         profile_service=ProfileService(knowledge_base=knowledge_base),

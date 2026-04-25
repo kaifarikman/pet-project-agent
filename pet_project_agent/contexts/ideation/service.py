@@ -137,13 +137,33 @@ JSON Schema:
 """.strip()
 
     def _get_fallback_ideas(self, research_result: ResearchResult, reason: str) -> List[ProjectIdea]:
+        profile = research_result.user_profile
+        stack = profile.skills[:5] if profile and profile.skills else ["python"]
+        references = [repo.url for repo in research_result.github_repositories[:3]]
+
         return [
             ProjectIdea(
-                title="Практичный проект для портфолио",
-                description="Проект с понятным сценарием и заметным результатом.",
-                stack=research_result.user_profile.skills[:5] if research_result.user_profile else ["python"],
-                mvp_features=["Базовый CRUD", "Хранение данных", "Интерфейс (CLI/Web)"],
+                title="Сервис для управления личными задачами",
+                description="Небольшой продукт с понятной бизнес-логикой: задачи, статусы, сроки и простая аналитика выполнения.",
+                stack=stack,
+                mvp_features=["CRUD для задач", "Фильтры по статусам и срокам", "Хранение данных"],
                 why_it_fits=f"Система в безопасном режиме. Причина: {reason}",
-                references=[]
-            )
+                references=references[:1],
+            ),
+            ProjectIdea(
+                title="CLI-ассистент для ежедневной рутины",
+                description="Инструмент, который помогает автоматизировать повторяющиеся действия: заметки, чек-листы, поиск и короткие отчеты.",
+                stack=stack,
+                mvp_features=["CLI-команды", "Локальное хранилище", "Экспорт результата в Markdown"],
+                why_it_fits=f"Идея не зависит от внешней LLM-генерации и хорошо показывает прикладную автоматизацию. Причина fallback: {reason}",
+                references=references[1:2],
+            ),
+            ProjectIdea(
+                title="Мини-дашборд для анализа данных",
+                description="Приложение, которое загружает небольшой датасет, считает ключевые метрики и показывает понятный отчет.",
+                stack=stack,
+                mvp_features=["Импорт CSV", "Расчет метрик", "Отчет или простой веб-интерфейс"],
+                why_it_fits=f"Проект легко ограничить по объему и довести до законченного портфолио-результата. Причина fallback: {reason}",
+                references=references[2:3],
+            ),
         ]

@@ -1,10 +1,9 @@
 import json
 import logging
-from typing import List, Optional
+from typing import List
 
 from pet_project_agent.domain.models import GitHubResearchData
 from pet_project_agent.domain.models import GitHubRepository
-from pet_project_agent.domain.models import RepositoryPattern
 from pet_project_agent.domain.models import Skill
 from pet_project_agent.domain.models import UserProfile
 from pet_project_agent.domain.ports import LLMClientPort
@@ -111,7 +110,6 @@ class GitHubSearchTool:
 
     def _rank_repositories(self, repositories: list[GitHubRepository], raw_query: str, profile: UserProfile) -> list[GitHubRepository]:
         scored = []
-        core_tokens = [] # Мы теперь больше полагаемся на описание
         
         for repo in repositories:
             score = 10.0 # Базовый балл
