@@ -1,7 +1,7 @@
 from typing import Protocol
 
 from pet_project_agent.domain.models import (
-    GitHubRepository,
+    GitHubResearchData,
     HackerNewsItem,
     ToolPlan,
     UserProfile,
@@ -19,7 +19,7 @@ class ProfileToolPort(Protocol):
 
 
 class GitHubSearchToolPort(Protocol):
-    def run(self, query: str) -> list[GitHubRepository]:
+    def run(self, query: str, user_profile: UserProfile | None = None) -> GitHubResearchData:
         ...
 
 

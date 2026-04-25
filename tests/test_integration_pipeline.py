@@ -108,6 +108,7 @@ def test_full_pipeline_can_render_debug_details() -> None:
         include_debug=True,
     )
 
-    assert "Какие инструменты и источники использованы" in response
+    assert "Отладочная информация" in response
+    assert "Использованные инструменты" in response
     assert "profile_tool" in response
     assert "github_search_tool" in response

@@ -38,7 +38,7 @@ class GitHubClient:
         }
 
         if self.token:
-            headers["Authorization"] = f"token {self.token}"
+            headers["Authorization"] = f"Bearer {self.token}"
 
         try:
             response = requests.get(
