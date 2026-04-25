@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pet-project-agent"
+version = "0.1.0"
+description = "CLI AI agent for portfolio pet-project discovery"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.13.3",
+    "python-dotenv>=1.2.2",
+    "requests>=2.33.1",
+]
+
+[project.scripts]
+pet-project-agent = "pet_project_agent.main:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+]

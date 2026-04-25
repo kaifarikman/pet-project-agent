@@ -1,0 +1,160 @@
+[profile.domain_hints]
+backend = ["backend", "бэкенд", "server", "service"]
+api = ["api", "rest", "endpoint", "эндпоинт"]
+data = ["data science", "data scientist", "data", "dataset", "etl", "csv", "датасет", "данн", "таблиц"]
+analytics = ["analytics", "analysis", "dashboard", "metrics", "report", "аналит", "метрик", "отчет", "отчёт", "анализ"]
+ml = ["machine learning", "ml", "model", "classification", "regression", "predict", "inference", "data science", "машинное обучение", "модель", "предсказ", "классифик", "регрес"]
+automation = ["automation", "workflow", "bot", "agent", "agentic", "assistant", "tool calling", "автоматиза", "агент", "ассистент"]
+llm = ["llm", "gpt", "rag", "prompt", "ollama", "agent", "assistant", "агент", "ассистент", "промпт"]
+bots = ["telegram", "discord", "bot", "бот"]
+security = ["security", "cybersecurity", "scanner", "vulnerability", "log", "безопас", "уязвим", "лог"]
+
+[routing]
+goal_markers = ["портфолио", "portfolio", "стаж", "работ", "job", "учеб", "learn"]
+duration_markers = ["недел", "week", "месяц", "month", "день", "day"]
+level_markers = ["начина", "junior", "easy", "средн", "middle", "medium", "сложн", "senior", "hard"]
+profile_phrase_markers = [
+  "я знаю",
+  "i know",
+  "умею",
+  "мой опыт",
+  "my experience",
+  "опыт",
+  "работаю с",
+  "worked with",
+  "пишу на",
+  "пишу в основном на",
+  "в основном на",
+  "обычно на",
+  "using",
+  "использую",
+  "у меня",
+  "i have",
+]
+explicit_research_markers = [
+  "open-source",
+  "opensource",
+  "github",
+  "репозитор",
+  "real examples",
+  "реальные примеры",
+  "примеры",
+  "examples",
+]
+hackernews_markers = [
+  "hacker news",
+  "hn",
+  "обсуждают",
+  "discussion",
+  "trend",
+  "trends",
+  "тренд",
+  "актуальн",
+]
+project_markers = [
+  "пет проект",
+  "пет-проект",
+  "pet project",
+  "проект",
+  "project",
+  "иде",
+  "вариант",
+  "варианты",
+  "предложи",
+  "suggest",
+  "recommend",
+  "что сделать",
+  "хочу написать",
+  "хочу сделать",
+  "собрать",
+  "реализовать",
+  "build",
+]
+technical_markers = [
+  "python",
+  "питон",
+  "fastapi",
+  "django",
+  "flask",
+  "sql",
+  "postgres",
+  "pandas",
+  "numpy",
+  "ml",
+  "machine learning",
+  "data science",
+  "streamlit",
+  "gradio",
+  "agent",
+  "agentic",
+  "агент",
+  "llm",
+  "ollama",
+  "telegram",
+  "bot",
+]
+github_technical_markers = [
+  "python",
+  "fastapi",
+  "django",
+  "flask",
+  "sql",
+  "api",
+  "backend",
+  "dashboard",
+  "analytics",
+  "data",
+  "data science",
+  "machine learning",
+  "ml",
+  "predict",
+  "prediction",
+  "telegram",
+  "bot",
+  "security",
+  "аналит",
+  "данн",
+  "дата саенс",
+  "машинное обучение",
+  "предсказ",
+  "модель",
+]
+subject_markers = [
+  "агент",
+  "agent",
+  "assistant",
+  "ассистент",
+  "чат",
+  "chat",
+  "бот",
+  "bot",
+  "dashboard",
+  "дашборд",
+  "трекер",
+  "tracker",
+  "analytics",
+  "аналит",
+  "student",
+  "студент",
+  "education",
+  "образован",
+  "finance",
+  "финанс",
+  "security",
+  "безопас",
+  "survey",
+  "опрос",
+  "health",
+  "wellbeing",
+  "депресс",
+]
+vague_markers = [
+  "какой-нибудь",
+  "какой нибудь",
+  "что-нибудь",
+  "что нибудь",
+  "anything",
+  "something",
+  "any project",
+  "любой проект",
+]

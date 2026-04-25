@@ -1,0 +1,143 @@
+import json
+import logging
+from typing import List, Any
+
+from pet_project_agent.domain.models import ProjectIdea, ResearchResult
+from pet_project_agent.domain.ports import LLMClientPort
+
+logger = logging.getLogger(__name__)
+
+class IdeationService:
+    def __init__(self, llm_client: LLMClientPort = None) -> None:
+        self.llm_client = llm_client
+
+    def generate_ideas(self, research_result: ResearchResult) -> List[ProjectIdea]:
+        if self.llm_client is None:
+            return self._get_fallback_ideas(research_result, "LLM client is not configured.")
+
+        prompt = self._build_prompt(research_result)
+        try:
+            raw_response = self.llm_client.generate(prompt, json_mode=True)
+            
+            ideas_data = self._parse_flexible_json(raw_response)
+            
+            if not ideas_data:
+                raise ValueError("Could not extract a list of ideas from LLM response.")
+
+            ideas = []
+            for item in ideas_data[:3]:
+                # Берем данные с дефолтами, чтобы не падать на кривых полях
+                ideas.append(
+                    ProjectIdea(
+                        title=item.get("title") or item.get("name") or "Интересный проект",
+                        description=item.get("description") or "Описание в разработке",
+                        stack=item.get("stack") if isinstance(item.get("stack"), list) else [],
+                        mvp_features=item.get("mvp_features") if isinstance(item.get("mvp_features"), list) else [],
+                        why_it_fits=item.get("why_it_fits") or "Подходит под ваш стек и интересы.",
+                        references=item.get("references") if isinstance(item.get("references"), list) else []
+                    )
+                )
+            
+            if not ideas:
+                return self._get_fallback_ideas(research_result, "LLM returned empty list.")
+                
+            return ideas
+
+        except Exception as e:
+            logger.error(f"Failed to generate ideas via LLM: {e}")
+            return self._get_fallback_ideas(research_result, f"Error: {e}")
+
+    def _parse_flexible_json(self, raw_response: str) -> List[Any]:
+        """Пытается найти список идей в JSON ответе любым способом."""
+        try:
+            data = json.loads(raw_response)
+        except json.JSONDecodeError:
+            return []
+
+        # 1. Если это сразу список
+        if isinstance(data, list):
+            return data
+        
+        # 2. Если это словарь, ищем список в известных ключах
+        if isinstance(data, dict):
+            for key in ["ideas", "projects", "result", "suggestions", "items"]:
+                if isinstance(data.get(key), list):
+                    return data[key]
+            
+            # 3. Если ничего не нашли, но в словаре есть только один ключ и там список
+            lists_in_dict = [v for v in data.values() if isinstance(v, list)]
+            if len(lists_in_dict) == 1:
+                return lists_in_dict[0]
+                
+            # 4. Если сам словарь похож на одну идею, оборачиваем в список
+            if "title" in data or "description" in data:
+                return [data]
+
+        return []
+
+    def _build_prompt(self, research_result: ResearchResult) -> str:
+        profile = research_result.user_profile
+        skills = ", ".join(profile.skills) if profile and profile.skills else "не указаны"
+        domains = ", ".join(profile.domains) if profile and profile.domains else "не указаны"
+        goal = profile.goal if profile else "не указана"
+        
+        repo_context = ""
+        if research_result.github_repositories:
+            repo_context = "Список найденных РЕАЛЬНЫХ репозиториев на GitHub для вдохновения (ссылка и описание):\n"
+            for repo in research_result.github_repositories[:10]:
+                repo_context += f"- {repo.url} | Описание: {repo.description}\n"
+
+        hn_context = ""
+        if research_result.hackernews_items:
+            hn_context = "Тренды с Hacker News:\n"
+            for item in research_result.hackernews_items[:3]:
+                hn_context += f"- {item.title} ({item.url})\n"
+
+        return f"""
+Вы — эксперт по карьере в IT. Ваша задача: предложить 3 идеи ПОРТФОЛИО-проектов (pet-projects) для разработчика.
+
+ОТВЕЧАЙ СТРОГО НА РУССКОМ ЯЗЫКЕ.
+
+Данные пользователя:
+- Навыки: {skills}
+- Интересы: {domains}
+- Цель: {goal}
+- Запрос пользователя: {profile.raw_text if profile else "неизвестен"}
+
+Контекст из поиска (используй эти ссылки в references):
+{repo_context if repo_context else "Реальных примеров на GitHub не найдено."}
+{hn_context}
+
+Инструкции:
+1. Предложите 3 разных идеи проектов, максимально использующих навыки пользователя.
+2. Для каждой идеи ОБЯЗАТЕЛЬНО проверь список репозиториев из "Контекста". Если репозиторий совпадает по языку программирования или тематике с твоей идеей — добавь его ссылку в массив "references".
+3. Постарайся найти хотя бы один подходящий референс для каждой идеи из предложенного списка, если это технически оправдано.
+4. КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО придумывать ссылки, которых нет в "Контексте". Если ничего не подходит — оставь [].
+5. Ответ должен быть в формате JSON с ключом "ideas".
+
+JSON Schema:
+{{
+  "ideas": [
+    {{
+      "title": "Название проекта на русском",
+      "description": "Суть проекта на русском",
+      "stack": ["Технология 1", "Технология 2"],
+      "mvp_features": ["фича 1", "фича 2"],
+      "why_it_fits": "Почему это круто для портфолио",
+      "references": ["ссылка из контекста"]
+    }}
+  ]
+}}
+""".strip()
+
+    def _get_fallback_ideas(self, research_result: ResearchResult, reason: str) -> List[ProjectIdea]:
+        return [
+            ProjectIdea(
+                title="Практичный проект для портфолио",
+                description="Проект с понятным сценарием и заметным результатом.",
+                stack=research_result.user_profile.skills[:5] if research_result.user_profile else ["python"],
+                mvp_features=["Базовый CRUD", "Хранение данных", "Интерфейс (CLI/Web)"],
+                why_it_fits=f"Система в безопасном режиме. Причина: {reason}",
+                references=[]
+            )
+        ]
