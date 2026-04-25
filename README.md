@@ -1,19 +1,43 @@
-Track: A+C
+# pet-project-agent
 
-`pet-project-agent` is a CLI AI agent that analyzes a user request, decides which tools to call, and proposes realistic portfolio pet-project ideas.
+`pet-project-agent` — это CLI AI-агент, который помогает разработчикам находить и генерировать идеи для пет-проектов. Агент анализирует ваш стек технологий, цели и интересы, после чего проводит исследование в сети и предлагает 3 персонализированных идеи для портфолио.
 
-Setup:
-`uv sync`
+## Основные возможности
 
-Run:
-`uv run pet-project-agent`
+- **Умная генерация**: Использование локальной LLM (Ollama) для создания уникальных идей, адаптированных под ваш опыт.
+- **Интеграция с GitHub**: Поиск реальных open-source проектов для вдохновения и использования в качестве референсов.
+- **Анализ трендов**: Поиск актуальных обсуждений на Hacker News.
+- **Локальный каталог**: Распознавание навыков на основе настраиваемого CSV-каталога.
+- **Гибкий роутинг**: Агент сам решает, какие инструменты вызвать, основываясь на вашем запросе.
 
-Before the first run:
-`ollama pull llama3.2`
+## Установка
 
-Environment:
-- copy `.env.example` to `.env`
-- set `OLLAMA_BASE_URL` and `OLLAMA_MODEL`
-- optionally set `GITHUB_TOKEN`
-- optionally set `SKILL_CATALOG_PATH`
-- optionally set `ROUTING_MODE` to `rules_first`, `llm_first`, or `rules_only`
+Для работы проекта требуется [uv](https://docs.astral.sh/uv/).
+
+```bash
+# Синхронизация зависимостей
+uv sync
+```
+
+## Запуск
+
+1. **Запустите Ollama** и скачайте модель:
+   ```bash
+   ollama pull llama3.2
+   ```
+
+2. **Настройте окружение**:
+   Скопируйте `.env.example` в `.env` и укажите необходимые переменные.
+
+3. **Запустите агента**:
+   ```bash
+   uv run pet-project-agent
+   ```
+
+## Конфигурация (.env)
+
+- `OLLAMA_BASE_URL`: URL вашего сервера Ollama (по умолчанию `http://localhost:11434`).
+- `OLLAMA_MODEL`: Используемая модель (рекомендуется `llama3.2`).
+- `GITHUB_TOKEN`: (Опционально) Токен GitHub для увеличения лимитов API.
+- `SKILL_CATALOG_PATH`: Путь к вашему CSV-файлу с навыками.
+- `ROUTING_MODE`: Режим работы роутера (`rules_first`, `llm_first` или `rules_only`).
