@@ -51,6 +51,10 @@ class ResponseRenderer:
             lines.append("### Результаты поиска")
             if "github_search_tool" in executed_tools:
                 lines.append(f"- **GitHub**: найдено {len(research_result.github_repositories)} репозиториев.")
+                if research_result.github_queries:
+                    lines.append("  - **Расширенные запросы:**")
+                    for q in research_result.github_queries:
+                        lines.append(f"    - `{q}`")
             if "hackernews_search_tool" in executed_tools:
                 lines.append(f"- **Hacker News**: найдено {len(research_result.hackernews_items)} обсуждений.")
 

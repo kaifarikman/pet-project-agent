@@ -190,30 +190,31 @@ class ToolRouter:
         available_tools = "\n".join(f"- {tool_name}" for tool_name in self.available_tools)
 
         return f"""
-You are a tool router for a CLI AI agent that suggests portfolio pet-project ideas.
+Вы — маршрутизатор инструментов для CLI-агента, который предлагает идеи пет-проектов.
 
-Available tools:
+Доступные инструменты:
 {available_tools}
 
-Routing rules:
-- You MUST use profile_tool when the user provides any information about skills, goal, timeline, or experience.
-- You MUST use github_search_tool when the user asks for real open-source examples, repositories, or GitHub research.
-- Use hackernews_search_tool only when trends, discussions, or extra market signal would help.
-- Do not call every tool automatically.
-- If the query is too vague, ask for clarification instead of inventing research.
-- Prefer proceeding with profile_tool when the user already described a project direction, stack, or implementation preference, even if some details are missing.
-- Only ask clarification when there is not enough information to produce even a first-pass idea shortlist.
-- Return strict JSON only, with no markdown and no explanation outside JSON.
+Правила маршрутизации:
+- Вы ДОЛЖНЫ использовать profile_tool, если пользователь предоставляет любую информацию о навыках, целях, сроках или опыте.
+- Вы ДОЛЖНЫ использовать github_search_tool, если пользователь запрашивает реальные примеры с открытым исходным кодом, репозитории или исследование GitHub.
+- Используйте hackernews_search_tool только тогда, когда тренды, обсуждения или дополнительные рыночные сигналы могут помочь.
+- Не вызывайте все инструменты автоматически.
+- Если запрос слишком расплывчатый, запросите уточнение вместо того, чтобы выдумывать исследование.
+- Предпочитайте использование profile_tool, когда пользователь уже описал направление проекта, стек или предпочтения по реализации, даже если некоторые детали отсутствуют.
+- Запрашивайте уточнение только тогда, когда информации недостаточно даже для составления первого списка идей.
+- Возвращайте только строгий JSON, без markdown и пояснений вне JSON.
+- ВАЖНО: поле `clarification_question` ДОЛЖНО быть на русском языке.
 
-Examples:
-- Query: "Я знаю Python, FastAPI, SQL. Хочу проект для портфолио за 2 недели. Найди реальные open-source примеры."
-  Required tools: profile_tool, github_search_tool
-- Query: "Хочу написать пет-проект с агентной системой, пишу в основном на Python."
-  Required tools: profile_tool
-- Query: "Хочу какой-нибудь проект"
-  Return needs_clarification=true and no tools.
+Примеры:
+- Запрос: "Я знаю Python, FastAPI, SQL. Хочу проект для портфолио за 2 недели. Найди реальные open-source примеры."
+  Необходимые инструменты: profile_tool, github_search_tool
+- Запрос: "Хочу написать пет-проект с агентной системой, пишу в основном на Python."
+  Необходимые инструменты: profile_tool
+- Запрос: "Хочу какой-нибудь проект"
+  Вернуть needs_clarification=true и пустой список инструментов.
 
-Expected JSON schema:
+Ожидаемая схема JSON:
 {{
   "needs_clarification": false,
   "clarification_question": null,
@@ -226,7 +227,7 @@ Expected JSON schema:
   "reason": "..."
 }}
 
-User query:
+Запрос пользователя:
 {user_query}
 """.strip()
 
@@ -266,18 +267,18 @@ User query:
 
     def _repair_plan(self, user_query: str, missing_tools: list[str]) -> ToolPlan | None:
         repair_prompt = f"""
-You returned a tool plan that missed required tools.
+Вы вернули план инструментов, в котором отсутствуют необходимые инструменты.
 
-User query:
+Запрос пользователя:
 {user_query}
 
-Missing tools that must be considered:
+Недостающие инструменты, которые необходимо рассмотреть:
 {missing_tools}
 
-Return corrected JSON only.
-Use profile_tool whenever the query already contains skills, goal, or timeline.
-Use github_search_tool whenever the query explicitly asks for real open-source examples, repositories, or GitHub research.
-Keep the same JSON schema as before.
+Верните только исправленный JSON.
+Используйте profile_tool всегда, когда запрос уже содержит навыки, цель или сроки.
+Используйте github_search_tool всегда, когда в запросе явно запрашиваются реальные примеры с открытым исходным кодом, репозитории или исследования GitHub.
+Соблюдайте ту же схему JSON, что и раньше.
 """.strip()
 
         try:

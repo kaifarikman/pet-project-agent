@@ -64,6 +64,7 @@ def _build_use_case() -> RecommendPetProjectsUseCase:
         min_stars=settings.github_min_stars,
         skill_catalog_repository=skill_catalog_repository,
         profile_service=ProfileService(knowledge_base=knowledge_base),
+        llm_client=llm_client,
     )
     hn_tool = HackerNewsSearchTool(
         client=HackerNewsClient(),
@@ -97,7 +98,7 @@ def _execute_and_print(use_case: RecommendPetProjectsUseCase, query: str, debug:
     with console.status("[bold blue]Агент думает...[/bold blue]"):
         try:
             response = use_case.execute(query, include_debug=debug)
-            console.print(f"\n[agent]agent>[/agent]")
+            console.print(f"\n[bold blue]✦[/bold blue] [bold white]агент[/bold white]")
             console.print(Markdown(response))
         except Exception as e:
             console.print(f"[error]Ошибка: {e}[/error]")
@@ -135,7 +136,7 @@ def chat(
     _print_welcome()
     
     while True:
-        user_input = Prompt.ask("\n[bold cyan]you[/bold cyan]").strip()
+        user_input = Prompt.ask("\n[bold cyan]➜[/bold cyan] [bold white]вы[/bold white]").strip()
 
         if user_input.lower() in {"exit", "quit", "q", "выход"}:
             console.print("[info]Сессия завершена. До встречи![/info]")
