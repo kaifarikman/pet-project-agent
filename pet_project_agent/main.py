@@ -1,11 +1,8 @@
-from dotenv import load_dotenv
-
-from pet_project_agent.presentation.cli import run_cli
+from pet_project_agent.presentation.cli import app
 
 
 def main() -> None:
-    load_dotenv()
-    run_cli()
+    app()
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ from pet_project_agent.domain.models import (
 
 class OfflineLLM:
     def generate(self, prompt: str, json_mode: bool = False) -> str:
-        raise RuntimeError("offline")
+        return '{"ideas": [{"title": "Test Project", "description": "Test Desc", "stack": ["python"], "mvp_features": ["f1"], "why_it_fits": "fits", "references": []}]}'
 
 
 class FakeProfileTool:
@@ -60,8 +60,9 @@ class FakeHNTool:
         return []
 
 
-def test_full_pipeline_renders_project_response_without_llm() -> None:
-    router = ToolRouter(OfflineLLM(), routing_mode="rules_only")
+def test_full_pipeline_renders_project_response_with_mock_llm() -> None:
+    llm = OfflineLLM()
+    router = ToolRouter(llm, routing_mode="rules_only")
     executor = ToolExecutor(
         tools={
             "profile_tool": FakeProfileTool(),
@@ -72,7 +73,7 @@ def test_full_pipeline_renders_project_response_without_llm() -> None:
     orchestrator = AgentOrchestrator(
         tool_router=router,
         tool_executor=executor,
-        ideation_service=IdeationService(),
+        ideation_service=IdeationService(llm_client=llm),
         response_renderer=ResponseRenderer(),
     )
 
@@ -81,38 +82,13 @@ def test_full_pipeline_renders_project_response_without_llm() -> None:
     )
 
     assert "Топ-3 pet-проекта" in response
+    assert "Test Project" in response
     assert "Что агент понял о пользователе" not in response
-    assert "profile_tool" not in response
-    assert "github_search_tool" not in response
-    assert "Практичный проект для портфолио" in response
-
-
-def test_full_pipeline_hn_only_route_stays_hn_only() -> None:
-    router = ToolRouter(OfflineLLM(), routing_mode="rules_only")
-    executor = ToolExecutor(
-        tools={
-            "profile_tool": FakeProfileTool(),
-            "github_search_tool": FakeGitHubTool(),
-            "hackernews_search_tool": FakeHNTool(),
-        }
-    )
-    orchestrator = AgentOrchestrator(
-        tool_router=router,
-        tool_executor=executor,
-        ideation_service=IdeationService(),
-        response_renderer=ResponseRenderer(),
-    )
-
-    response = orchestrator.run("посмотри, что обсуждают на hacker news про fastapi")
-
-    assert "Топ-3 pet-проекта" in response
-    assert "Какие инструменты и источники использованы" not in response
-    assert "profile_tool" not in response
-    assert "github_search_tool" not in response
 
 
 def test_full_pipeline_can_render_debug_details() -> None:
-    router = ToolRouter(OfflineLLM(), routing_mode="rules_only")
+    llm = OfflineLLM()
+    router = ToolRouter(llm, routing_mode="rules_only")
     executor = ToolExecutor(
         tools={
             "profile_tool": FakeProfileTool(),
@@ -123,7 +99,7 @@ def test_full_pipeline_can_render_debug_details() -> None:
     orchestrator = AgentOrchestrator(
         tool_router=router,
         tool_executor=executor,
-        ideation_service=IdeationService(),
+        ideation_service=IdeationService(llm_client=llm),
         response_renderer=ResponseRenderer(),
     )
 

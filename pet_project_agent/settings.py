@@ -12,6 +12,8 @@ class AppSettings:
 
     @classmethod
     def from_env(cls) -> "AppSettings":
+        from dotenv import load_dotenv
+        load_dotenv()
         return cls(
             skill_catalog_path=os.getenv("SKILL_CATALOG_PATH", "data/skills_catalog.csv"),
             routing_mode=os.getenv("ROUTING_MODE", "rules_first").strip().lower() or "rules_first",
